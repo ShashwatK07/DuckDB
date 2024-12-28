@@ -12,7 +12,21 @@ const App = () => {
   const [display, setDisplay] = useState(false)
   const [csvFile, setCsvFile] = useState(null)
 
-  const url = "https://super-duckdb.onrender.com"
+  // const url = "https://super-duckdb.onrender.com"
+  const url = "http://localhost:8080"
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [badgeCount, setBadgeCount] = useState(0);
+
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleSelection = (data) => {
+    setBadgeCount(1);
+    setIsDropdownOpen(false);
+    setCsvFile(data)
+  };
 
   const customPrompt = (data) => {
     setPrompt(data)
@@ -58,6 +72,8 @@ const App = () => {
         return
       }
 
+      console.log(prompt, csvFile)
+
       setIsLoading(true)
       setDisplay(true)
       const res = await axios.post(`${url}/generate_sql`, {
@@ -65,7 +81,7 @@ const App = () => {
         filePath: csvFile
       }, { responseType: 'blob' });
 
-      if (res.status === 500) {
+      if (res.status >= 500) {
         alert("Internal Server Error or prompt entered is not relevent to the file.")
         return
       }
@@ -85,6 +101,8 @@ const App = () => {
     } catch (error) {
       console.error('Error fetching CSV:', error);
       setIsLoading(false)
+      setDisplay(false)
+      setBadgeCount(0)
     }
   };
 
@@ -126,7 +144,7 @@ const App = () => {
         </label>
       </div>
 
-      <div className="rounded-xl w-[70vw] h-[46vh] flex p-5 shadow-lg shadow-slate-300 gap-2 flex-col mb-5">
+      <div className="rounded-xl w-[70vw] h-[50vh] flex p-5 shadow-lg shadow-slate-300 gap-2 flex-col mb-5">
         <h2 className="text-gray-500">Enter a query below, or try one of these samples:</h2>
         <div className="flex flex-row gap-2 mt-2 flex-wrap">
           <button className='flex items-center justify-center shadow-sm shadow-slate-300 rounded-lg py-1 px-2 gap-1 text-sm'
@@ -175,8 +193,50 @@ const App = () => {
                 accept=".csv,.txt"
               />
             </label>
-            <button className='mx-2'><Plus size={18} /></button>
-            <button className={`bg-black p-1 rounded-lg mx-2 ml-auto ${isLoading ? "bg-slate-400 cursor-not-allowed" : ""}`} onClick={generateSQL}><ArrowRight size={18} className='text-white' /></button>
+            <div className="relative hover:border-2 border-black rounded-lg py-1">
+              <button
+                id="dropdownButton"
+                onClick={handleDropdownToggle}
+                className="mx-2 relative"
+              >
+                <Plus size={16} />
+
+              </button>
+              {badgeCount > 0 && (
+                <div className="absolute inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-black border-2 border-white rounded-full top-0 right-0 transform translate-x-1/2 -translate-y-1/2 z-10 dark:border-gray-900">
+                  {badgeCount}
+                </div>
+              )}
+              {isDropdownOpen && (
+                <div
+                  id="dropdown"
+                  className="absolute z-10 divide-y divide-gray-100 rounded-lg shadow w-44 mt-2 bg-white"
+                >
+                  <ul
+                    className="py-2 text-sm"
+                    aria-labelledby="dropdownButton"
+                  >
+                    <li>
+                      <button
+                        onClick={() => handleSelection("https://res.cloudinary.com/dn2filzyc/raw/upload/v1735426746/sales_data")}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-300"
+                      >
+                        sales.csv
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => handleSelection("https://res.cloudinary.com/dn2filzyc/raw/upload/v1735426786/customer_data")}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-300"
+                      >
+                        customer.csv
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+            <button className={`bg-black py-1 px-2 rounded-lg mx-2 ml-auto ${isLoading ? "bg-slate-400 cursor-not-allowed" : ""}`} onClick={generateSQL}><ArrowRight size={18} className='text-white' /></button>
           </div>
         </div>
       </div>

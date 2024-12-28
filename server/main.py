@@ -78,6 +78,7 @@ def generate_sql():
         f"and the structure of this CSV file: {df.head().to_string(index=False)}, "
         f"give answer in SQL query only irrespective of actual meaning and use table name as uploaded_csv and use proper alias where needed"
         f"take column headings as they are without adding any character to it or deleting white spaces"
+        f"It should contain only SQL nothing else"
     )
 
     try:
