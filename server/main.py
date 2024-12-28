@@ -77,7 +77,7 @@ def generate_sql():
         f"You are an expert SQL generator. Given the following text request: \"{text_input}\" "
         f"and the structure of this CSV file: {df.head().to_string(index=False)}, "
         f"give answer in SQL query only irrespective of actual meaning and use table name as uploaded_csv and use proper alias where needed"
-        f""
+        f"take column headings as they are without adding any character to it or deleting white spaces"
     )
 
     try:

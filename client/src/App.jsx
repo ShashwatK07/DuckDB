@@ -12,6 +12,8 @@ const App = () => {
   const [display, setDisplay] = useState(false)
   const [csvFile, setCsvFile] = useState(null)
 
+  const url = "https://super-duckdb.onrender.com"
+
   const customPrompt = (data) => {
     setPrompt(data)
   }
@@ -25,13 +27,14 @@ const App = () => {
     formData.append('file', file);
 
     try {
-      const res = await axios.post('http://localhost:8080/upload_file', formData, {
+      const res = await axios.post(`${url}/upload_file`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
-      setCsvFile(res.data.file_path)
+      console.log(res.data)
+      setCsvFile(res.data.filePath)
+      alert("File uploaded successfully!")
       return res.data;
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -57,7 +60,7 @@ const App = () => {
 
       setIsLoading(true)
       setDisplay(true)
-      const res = await axios.post('http://localhost:8080/generate_sql', {
+      const res = await axios.post(`${url}/generate_sql`, {
         text: prompt,
         filePath: csvFile
       }, { responseType: 'blob' });
