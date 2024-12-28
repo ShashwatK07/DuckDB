@@ -5,18 +5,26 @@ import pandas as pd
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 
 # Load environment variables
 load_dotenv()
 
 google_api_key = os.getenv("GOOGLE_API_KEY")
+cloudinary_cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME")
+cloudinary_api_key = os.getenv("CLOUDINARY_API_KEY")
+cloudinary_api_secret = os.getenv("CLOUDINARY_API_SECRET")
+cloudinary.config( 
+    cloud_name = cloudinary_cloud_name, 
+    api_key = cloudinary_api_key, 
+    api_secret = cloudinary_api_secret,
+    secure=True
+)
 
 app = Flask(__name__)
 cors = CORS(app,origins="*")
-
-UPLOAD_FOLDER = '/tmp'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/', methods=['GET'])
 def home():
@@ -25,22 +33,23 @@ def home():
 # Route for uploading files
 @app.route('/upload_file', methods=['POST'])
 def upload_file():
-
     if 'file' not in request.files:
         return jsonify({"error": "No file provided."}), 400
 
     csv_file = request.files['file']
-
     if csv_file.filename == '':
         return jsonify({"error": "No selected file."}), 400
 
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], csv_file.filename)
     try:
-        csv_file.save(file_path)
+        
+        upload_result = cloudinary.uploader.upload(
+            csv_file,
+            resource_type="raw",
+            public_id=csv_file.filename.split('.')[0]
+        )
+        return jsonify({"message": "File uploaded successfully!", "filePath": upload_result["secure_url"]}), 200
     except Exception as e:
-        return jsonify({"error": f"Error saving file: {str(e)}"}), 500
-
-    return jsonify({"message": "File uploaded successfully.", "file_path": file_path}), 200
+        return jsonify({"error": f"Error uploading to Cloudinary: {str(e)}"}), 500
 
 # Route for generating SQL
 @app.route('/generate_sql', methods=['POST'])
@@ -98,5 +107,6 @@ def generate_sql():
     )
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True,port=8080)
+    # port = int(os.environ.get("PORT", 8080))
+    # app.run(host='0.0.0.0', port=port)
