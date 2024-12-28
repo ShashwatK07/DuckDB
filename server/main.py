@@ -18,6 +18,10 @@ UPLOAD_FOLDER = '/tmp'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({"message":"Server running successfully"})
+
 # Route for uploading files
 @app.route('/upload_file', methods=['POST'])
 def upload_file():
@@ -94,4 +98,5 @@ def generate_sql():
     )
 
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
