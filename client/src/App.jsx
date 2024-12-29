@@ -12,7 +12,7 @@ const App = () => {
   const [display, setDisplay] = useState(false)
   const [csvFile, setCsvFile] = useState(null)
 
-  const url = "https://duckdb-u1je.onrender.com"
+  const url = "https://duckdb-curc.onrender.com"
   // const url = "http://localhost:8080"
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
