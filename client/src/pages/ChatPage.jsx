@@ -40,7 +40,7 @@ const ChatPage = () => {
         formData.append('file', file);
 
         try {
-            const res = await axios.post(`${url}/upload_file`, formData, {
+            const res = await axios.post(`${url}/api/chat/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -75,7 +75,7 @@ const ChatPage = () => {
 
             setIsLoading(true)
             setDisplay(true)
-            const res = await axios.post(`${url}/generate_sql`, {
+            const res = await axios.post(`${url}/api/chat/generate`, {
                 text: prompt,
                 filePath: csvFile
             }, { responseType: 'blob' });
