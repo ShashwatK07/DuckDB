@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/chat', fileRoutes);
-app.use('/api/auth')
+// app.use('/api/auth')
 
 app.get('/', (req, res) => {
     res.json({ message: 'Server running successfully' });

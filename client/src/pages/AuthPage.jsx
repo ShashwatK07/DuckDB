@@ -27,22 +27,24 @@ const AuthPage = () => {
     // const { setAuthToken } = useAuthStore();
 
     return (
-        <div className="flex justify-center items-center flex-col">
-            <div className="font-mono text-5xl">Welcome to SuperAI</div>
-            <GoogleLogin
-                onSuccess={(credentialResponse) => {
-                    const token = credentialResponse.credential;
-                    if (token) {
-                        // setAuthToken(token); // Save the token
-                        const user = jwtDecode(token); // Decode the token
-                        console.log('User Info:', user);
-                    }
-                }}
-                onError={() => {
-                    console.log('Login Failed');
-                }}
-            />
+        <div className="flex justify-center items-center h-screen">
+            <div className="flex flex-col items-center">
+                <div className="font-mono text-5xl mb-4">Welcome to SuperAI</div>
+                <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                        const token = credentialResponse.credential;
+                        if (token) {
+                            const user = jwtDecode(token);
+                            console.log('User Info:', user);
+                        }
+                    }}
+                    onError={() => {
+                        console.log('Login Failed');
+                    }}
+                />
+            </div>
         </div>
+
     );
 };
 

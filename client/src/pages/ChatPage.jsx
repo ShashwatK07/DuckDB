@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
 import Papa from 'papaparse';
-import { ChartNoAxesColumnIncreasing, Users, Calendar, DollarSign, Paperclip, Plus, ArrowRight, Download } from 'lucide-react';
+import { ChartNoAxesColumnIncreasing, Users, Calendar, DollarSign, Paperclip, Plus, ArrowRight, Download, Mic } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
+import SpeechButton from '../components/SpeechButton';
 
 const ChatPage = () => {
     const [prompt, setPrompt] = useState("");
@@ -192,7 +193,7 @@ const ChatPage = () => {
                                 accept=".csv,.txt"
                             />
                         </label>
-                        <div className="relative hover:border-2 border-black rounded-lg py-1">
+                        <div className="relative border-2 border-transparent hover:border-black rounded-lg py-1">
                             <button
                                 id="dropdownButton"
                                 onClick={handleDropdownToggle}
@@ -235,7 +236,16 @@ const ChatPage = () => {
                                 </div>
                             )}
                         </div>
-                        <button className={`bg-black py-1 px-2 rounded-lg mx-2 ml-auto ${isLoading ? "bg-slate-400 cursor-not-allowed" : ""}`} onClick={generateSQL}><ArrowRight size={18} className='text-white' /></button>
+
+                        <div className='ml-auto flex justify-center gap-2'>
+                            <button className={`relative border-2 border-transparent hover:border-black rounded-lg`}>
+                                <SpeechButton handlePrompt={setPrompt} />
+                            </button>
+
+                            <button className={`bg-black py-1 px-2 rounded-lg ${isLoading ? "bg-slate-400 cursor-not-allowed" : ""}`} onClick={generateSQL}>
+                                <ArrowRight size={18} className='text-white' />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
