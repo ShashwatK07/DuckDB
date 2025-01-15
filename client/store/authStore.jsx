@@ -5,7 +5,11 @@ import { jwtDecode } from 'jwt-decode';
 const authStoreFunctions = (set, get) => ({
     authToken: null,
     user: null,
+    theme: 'light',
 
+    setTheme: () => {
+        set({ theme: get().theme === 'light' ? 'dark' : 'light' })
+    },
 
     loginAuth0: (token) => {
         try {

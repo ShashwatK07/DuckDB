@@ -10,6 +10,7 @@ import Skeleton from "../components/Skeleton";
 import SpeechButton from "../components/SpeechButton";
 import Navbar from "../components/navbar";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import useAuthStore from "../../store/authStore";
 
 const ChatPage = () => {
     const [prompt, setPrompt] = useState("");
@@ -17,6 +18,7 @@ const ChatPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [csvFile, setCsvFile] = useState(null);
     const [answering, setAnswering] = useState(false)
+    const { theme } = useAuthStore()
 
     const url = import.meta.env.VITE_SERVER_URL;
 
@@ -100,11 +102,16 @@ const ChatPage = () => {
     };
 
     return (
-        <>
+        <div className={`${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"}`}>
             <Navbar />
-            <div className="flex flex-col items-center justify-start min-h-screen py-10 px-5 space-y-10">
+            <div className="flex flex-col items-center justify-start min-h-screen p-10 space-y-5 max-h-[25px]">
+                {/* Result component */}
                 {results.map((result, index) => (
-                    <div key={index} className="w-full max-w-4xl rounded-lg shadow-lg bg-white mb-4">
+                    <div
+                        key={index}
+                        className={`w-3/4 max-w-4xl h-3/4 overflow-y-auto rounded-lg shadow-sm ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} mb-4 mx-auto`}
+                        style={{ height: "80%" }}
+                    >
                         <div className="p-5 border-b">
                             <h3 className="font-bold">Query: {result.prompt}</h3>
                         </div>
@@ -160,18 +167,19 @@ const ChatPage = () => {
                         </div>
                     </div>
                 ))}
+                {/* Chat component */}
                 <div
-                    className={`w-full max-w-4xl bg-white m-auto ${answering ? "fixed bottom-0 left-0 right-0 mb-6" : ""}`}
+                    className={`w-full max-w-4xl ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} m-auto rounded-3xl ${answering ? " bottom-0 left-0 right-0 mb-3" : ""}`}
                 >
                     {!answering && (
-                        <h2 className="text-2xl font-semibold text-center mb-4">
+                        <h2 className="text-4xl font-semibold text-center mb-6">
                             What can I help with?
                         </h2>
                     )}
 
-                    <div className="w-full max-w-4xl p-4 rounded-3xl shadow-lg bg-white m-auto">
+                    <div className={`w-full max-w-4xl p-4 ${theme === "dark" ? "bg-[#3C3D37] text-[#F5EFFF]" : "bg-[#E5D9F2] text-black"} rounded-3xl m-auto`}>
                         <textarea
-                            className={`w-full p-3 rounded-lg focus:outline-none ${answering ? "h-16" : "h-32"
+                            className={`w-full rounded-lg bg-transparent focus:outline-none ${answering ? "h-7" : "h-32"
                                 }`}
                             placeholder="Message Super"
                             value={prompt}
@@ -202,7 +210,7 @@ const ChatPage = () => {
                 </div>
 
             </div>
-        </>
+        </div >
     );
 };
 

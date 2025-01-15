@@ -2,20 +2,25 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import { useClerk } from '@clerk/clerk-react';
+import { Sun, Moon, LogOut } from "lucide-react"
 
 const Navbar = () => {
-    const { user, logout } = useAuthStore();
+    const { user, theme, setTheme } = useAuthStore();
     const navigate = useNavigate();
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
     const { signOut } = useClerk();
+
+    const toggleTheme = () => {
+        setTheme(theme === "dark" ? "light" : "dark");
+    };
 
     const handleLogout = async () => {
         await signOut({ redirect: true, redirectUrl: '/' });
     };
 
     return (
-        <nav className="fixed top-0 left-0 w-full bg-[#F4F6FF] p-4 flex justify-between items-center shadow-sm z-50">
+        <nav className={`fixed top-0 left-0 w-full  ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} py-3 flex justify-between items-center shadow-sm px-5`}>
 
             <div
                 className="text-xl font-bold cursor-pointer mr-3"
@@ -28,7 +33,7 @@ const Navbar = () => {
                 <div className="relative">
                     <button
                         onClick={() => setDropdownVisible((prev) => !prev)}
-                        className="flex items-center gap-2 bg-[#F4F6FF] text-black py-2 px-4 rounded-full"
+                        className="flex items-center gap-2 bg-[#F5EFFF] text-black py-2 px-4 rounded-full"
                     >
                         <img
                             src={user.imageUrl}
@@ -39,20 +44,20 @@ const Navbar = () => {
                     </button>
                     {dropdownVisible && (
                         <div
-                            className="absolute right-0 mt-2 bg-[#F4F6FF] rounded-md py-2 w-36 text-sm shadow-lg"
+                            className={`absolute right-0 mt-2 ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} rounded-md py-2 w-36 text-sm shadow-lg`}
                             onMouseLeave={() => setDropdownVisible(false)}
                         >
                             <button
                                 onClick={handleLogout}
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                                className="flex justify-start gap-2 items-center w-full text-left px-4 py-2"
                             >
-                                Logout
+                                <LogOut size={18} /> Logout
                             </button>
                             <button
-                                onClick={handleLogout}
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                                onClick={toggleTheme}
+                                className="w-full text-left px-4 py-2 flex justify-start items-start gap-2 "
                             >
-                                Theme
+                                {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />} {theme === "dark" ? "Dark" : "Light"} Theme
                             </button>
                         </div>
                     )}

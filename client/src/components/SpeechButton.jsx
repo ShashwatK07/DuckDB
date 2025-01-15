@@ -50,10 +50,7 @@ const SpeechButton = ({ handlePrompt }) => {
 
     return (
         <button
-            className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${listening
-                ? " shadow-lg hover:bg-red-300"
-                : "  hover:bg-red-300"
-                }`}
+            className={`flex items-center justify-center w-10 h-10 rounded-full transition-all `}
             onClick={handleToggleListening}
         >
             {listening ? <MicOff size={24} /> : <Mic size={24} />}

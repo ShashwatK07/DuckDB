@@ -9,7 +9,7 @@ import useAuthStore from "../../store/authStore";
 
 const textArray = [
     "I'm Super",
-    "Welcome to Super AI.",
+    "Welcome to Super AI",
     "Let's begin with connecting your Google profile",
 ];
 
@@ -19,7 +19,7 @@ const HomePage = () => {
     const { login, loginAuth0 } = useAuthStore()
     const [showLogin, setShowLogin] = useState(false);
     // const { loginWithRedirect, user } = useAuth0();
-    // const { user } = useUser();
+    const { user } = useUser();
 
     if (localStorage.getItem("user")) {
         return <navigate to="/" />;
@@ -39,7 +39,7 @@ const HomePage = () => {
     }, [currentIndex]);
 
     return (
-        <main className="min-h-screen w-full bg-white relative overflow-hidden flex flex-col items-center justify-center">
+        <main className="min-h-screen w-full bg-customLight relative overflow-hidden flex flex-col items-center justify-center">
 
             <div
                 className="w-28 h-28 rounded-full flex items-center justify-center bg-gradient-to-tr from-gray-300 via-customLight shadow-[0px_10px_20px_rgba(0,0,0,0.2),inset_0px_-5px_10px_rgba(0,0,0,0.1)]"
@@ -114,16 +114,31 @@ const HomePage = () => {
 
                             }}>Log In</button> */}
 
-                            <SignedOut>
-                                <div onClick={() => { loginAuth0(user); navigate('/intro') }}>
-                                    <SignInButton />
-                                </div>
-                            </SignedOut>
-                            <SignedIn>
-                                <div onClick={() => { loginAuth0(user); navigate('/intro') }}>
-                                    <UserButton />
-                                </div>
-                            </SignedIn>
+                            <div className="flex items-center justify-center  bg-gray-50">
+                                <SignedOut>
+                                    <div
+                                        className="p-4 bg-white bg-clip-text text-transparent bg-gradient-to-r from-[#B85B8F] to-[#9B6BFF] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                                        onClick={() => {
+                                            loginAuth0(user);
+                                            navigate('/intro');
+                                        }}
+                                    >
+                                        <SignInButton />
+                                    </div>
+                                </SignedOut>
+                                <SignedIn>
+                                    <div
+                                        className="p-4 bg-white bg-clip-text font-semibold text-transparent bg-gradient-to-r from-[#B85B8F] to-[#9B6BFF] rounded-lg shadow-md transition-shadow duration-200 cursor-pointer"
+                                        onClick={() => {
+                                            loginAuth0(user);
+                                            navigate('/intro');
+                                        }}
+                                    >
+                                        <UserButton />
+                                    </div>
+                                </SignedIn>
+                            </div>
+
 
                         </motion.div>
                     )}
