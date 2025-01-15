@@ -6,6 +6,17 @@ const authStoreFunctions = (set, get) => ({
     authToken: null,
     user: null,
 
+
+    loginAuth0: (token) => {
+        try {
+            // const decoded = jwtDecode(token);
+            // set({ authToken: token, user: decoded });
+            set({ user: token })
+        } catch (error) {
+            console.error('Invalid token:', error);
+        }
+    },
+
     login: (token) => {
         try {
             const decoded = jwtDecode(token);

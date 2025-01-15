@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Mic } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Mic, MicOff } from "lucide-react";
 
-const SpeechButton = ({ handlePrompt, }) => {
+const SpeechButton = ({ handlePrompt }) => {
     const [listening, setListening] = useState(false);
     const [recognition, setRecognition] = useState(null);
 
@@ -15,15 +15,15 @@ const SpeechButton = ({ handlePrompt, }) => {
             speechRecognition.continuous = true;
 
             speechRecognition.onresult = (event) => {
-                let tempTranscript = '';
+                let tempTranscript = "";
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     tempTranscript += event.results[i][0].transcript;
                 }
-                handlePrompt(tempTranscript)
+                handlePrompt(tempTranscript);
             };
 
             speechRecognition.onerror = (event) => {
-                console.error('Speech recognition error:', event);
+                console.error("Speech recognition error:", event);
             };
 
             speechRecognition.onend = () => {
@@ -32,10 +32,9 @@ const SpeechButton = ({ handlePrompt, }) => {
 
             setRecognition(speechRecognition);
         } else {
-            alert('Speech Recognition is not supported in this browser.');
+            alert("Speech Recognition is not supported in this browser.");
         }
-    }, []);
-
+    }, [handlePrompt]);
 
     const handleToggleListening = () => {
         if (!recognition) return;
@@ -43,7 +42,6 @@ const SpeechButton = ({ handlePrompt, }) => {
         if (listening) {
             recognition.stop();
             setListening(false);
-
         } else {
             recognition.start();
             setListening(true);
@@ -51,15 +49,15 @@ const SpeechButton = ({ handlePrompt, }) => {
     };
 
     return (
-        <div className="text-center">
-            <button
-                className={`flex items-center justify-center  rounded-lg py-1 px-2 gap-1 text-sm ${listening ? 'bg-blue-100' : 'bg-white'
-                    }`}
-                onClick={handleToggleListening}
-            >
-                <Mic size={18} />
-            </button>
-        </div>
+        <button
+            className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${listening
+                ? " shadow-lg hover:bg-red-300"
+                : "  hover:bg-red-300"
+                }`}
+            onClick={handleToggleListening}
+        >
+            {listening ? <MicOff size={24} /> : <Mic size={24} />}
+        </button>
     );
 };
 

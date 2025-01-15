@@ -2,6 +2,7 @@ import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore';
+import DuckCanvas from '../components/Duck';
 
 const AuthPage = () => {
     const { login } = useAuthStore()
@@ -9,7 +10,9 @@ const AuthPage = () => {
 
     return (
         <div className="flex justify-center items-center h-screen">
+            {/* <DuckCanvas /> */}
             <div className="flex flex-col items-center">
+
                 <div className="font-mono text-5xl mb-4">Welcome to SuperAI</div>
                 <GoogleLogin
                     onSuccess={(credentialResponse) => {
