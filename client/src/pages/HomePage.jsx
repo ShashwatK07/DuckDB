@@ -10,7 +10,7 @@ import useAuthStore from "../../store/authStore";
 const textArray = [
     "I'm Super",
     "Welcome to Super AI",
-    "Let's begin with connecting your Google profile",
+    "Let's begin with connecting your profile",
 ];
 
 const HomePage = () => {
@@ -119,8 +119,7 @@ const HomePage = () => {
                                     <div
                                         className="p-4 bg-white bg-clip-text text-transparent bg-gradient-to-r from-[#B85B8F] to-[#9B6BFF] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
                                         onClick={() => {
-                                            loginAuth0(user);
-                                            navigate('/intro');
+                                            loginAuth0(user)
                                         }}
                                     >
                                         <SignInButton />
@@ -129,7 +128,7 @@ const HomePage = () => {
                                 <SignedIn>
                                     <div
                                         className="p-4 bg-white bg-clip-text font-semibold text-transparent bg-gradient-to-r from-[#B85B8F] to-[#9B6BFF] rounded-lg shadow-md transition-shadow duration-200 cursor-pointer"
-                                        onClick={() => {
+                                        onClick={async () => {
                                             loginAuth0(user);
                                             navigate('/intro');
                                         }}

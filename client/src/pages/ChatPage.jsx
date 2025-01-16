@@ -19,6 +19,7 @@ const ChatPage = () => {
     const [csvFile, setCsvFile] = useState(null);
     const [answering, setAnswering] = useState(false)
     const { theme } = useAuthStore()
+    const [selectedChart, setSelectedChart] = useState("BarChart");
 
     const url = import.meta.env.VITE_SERVER_URL;
 
@@ -43,10 +44,10 @@ const ChatPage = () => {
     };
 
     const generateSQL = async () => {
-        // if (!prompt || !csvFile) {
-        //     alert("Please provide a prompt and upload a file.");
-        //     return;
-        // }
+        if (!prompt || !csvFile) {
+            alert("Please provide a prompt and upload a file.");
+            return;
+        }
 
         try {
             setIsLoading(true);
@@ -102,74 +103,140 @@ const ChatPage = () => {
     };
 
     return (
-        <div className={`${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"}`}>
+        <div className={`flex flex-col h-screen ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"}`}>
             <Navbar />
-            <div className="flex flex-col items-center justify-start min-h-screen p-10 space-y-5 max-h-[25px]">
-                {/* Result component */}
-                {results.map((result, index) => (
-                    <div
-                        key={index}
-                        className={`w-3/4 max-w-4xl h-3/4 overflow-y-auto rounded-lg shadow-sm ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} mb-4 mx-auto`}
-                        style={{ height: "80%" }}
-                    >
-                        <div className="p-5 border-b">
-                            <h3 className="font-bold">Query: {result.prompt}</h3>
-                        </div>
-                        <div className="p-5">
+            <main className="flex flex-col flex-1 overflow-y-auto items-center justify-start p-3 space-y-5">
+
+                {results.map((result, index) => {
+
+                    const renderChart = () => {
+                        switch (selectedChart) {
+                            case "BarChart":
+                                return (
+                                    <BarChart data={result.chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey={result.csvData[0][0]} />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Bar dataKey={result.csvData[0][1]} fill="#8884d8" />
+                                    </BarChart>
+                                );
+                            case "LineChart":
+                                return (
+                                    <LineChart data={result.chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey={result.csvData[0][0]} />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Line type="monotone" dataKey={result.csvData[0][1]} stroke="#82ca9d" />
+                                    </LineChart>
+                                );
+                            case "PieChart":
+                                return (
+                                    <PieChart>
+                                        <Pie
+                                            data={result.chartData}
+                                            dataKey={result.csvData[0][1]}
+                                            nameKey={result.csvData[0][0]}
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={100}
+                                            fill="#8884d8"
+                                            label
+                                        />
+                                        <Tooltip />
+                                    </PieChart>
+                                );
+                            default:
+                                return null;
+                        }
+                    };
+
+                    return (
+                        <div
+                            key={index}
+                            className={`w-3/4 max-w-4xl h-3/4 overflow-y-auto rounded-lg shadow-sm ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"
+                                } mb-4 mx-auto`}
+                            style={{ height: "80%" }}
+                        >
                             {isLoading ? (
                                 <Skeleton />
                             ) : (
                                 <>
-                                    <div className="overflow-x-auto mb-5">
-                                        <table className="w-full text-left border-collapse">
-                                            <thead>
-                                                <tr>
-                                                    {result.csvData[0]?.map((header, i) => (
-                                                        <th key={i} className="border-b p-3">
-                                                            {header}
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {result.csvData.slice(1).map((row, rowIndex) => (
-                                                    <tr key={rowIndex}>
-                                                        {row.map((cell, cellIndex) => (
-                                                            <td key={cellIndex} className="p-3 border-b">
-                                                                {cell}
-                                                            </td>
+                                    <div className="p-5 border-b">
+                                        <h3 className="font-bold">Query: {result.prompt}</h3>
+                                    </div>
+                                    <div className="p-5">
+                                        <div className="overflow-x-auto mb-5">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr>
+                                                        {result.csvData[0]?.map((header, i) => (
+                                                            <th key={i} className="border-b p-3">
+                                                                {header}
+                                                            </th>
                                                         ))}
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {result.csvData.slice(1).map((row, rowIndex) => (
+                                                        <tr key={rowIndex}>
+                                                            {row.map((cell, cellIndex) => (
+                                                                <td key={cellIndex} className="p-3 border-b">
+                                                                    {cell}
+                                                                </td>
+                                                            ))}
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div className="mb-5">
+                                            <div className="flex justify-center gap-3 mb-4">
+                                                <button
+                                                    className={`px-3 py-2 border rounded-md ${selectedChart === "BarChart" ? "bg-gray-300" : ""
+                                                        }`}
+                                                    onClick={() => setSelectedChart("BarChart")}
+                                                >
+                                                    Bar Chart
+                                                </button>
+                                                <button
+                                                    className={`px-3 py-2 border rounded-md ${selectedChart === "LineChart" ? "bg-gray-300" : ""
+                                                        }`}
+                                                    onClick={() => setSelectedChart("LineChart")}
+                                                >
+                                                    Line Chart
+                                                </button>
+                                                <button
+                                                    className={`px-3 py-2 border rounded-md ${selectedChart === "PieChart" ? "bg-gray-300" : ""
+                                                        }`}
+                                                    onClick={() => setSelectedChart("PieChart")}
+                                                >
+                                                    Pie Chart
+                                                </button>
+                                            </div>
+                                            <ResponsiveContainer width="100%" height={300}>
+                                                {renderChart()}
+                                            </ResponsiveContainer>
+                                        </div>
                                     </div>
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <BarChart data={result.chartData}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey={result.csvData[0][0]} />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Bar dataKey={result.csvData[0][1]} fill="#8884d8" />
-                                        </BarChart>
-                                    </ResponsiveContainer>
                                 </>
                             )}
+                            <div className="p-5 border-t">
+                                <button
+                                    className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-100"
+                                    onClick={() => handleDownload(result.csvData)}
+                                >
+                                    <Download />
+                                    Download CSV
+                                </button>
+                            </div>
                         </div>
-                        <div className="p-5 border-t">
-                            <button
-                                className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-100"
-                                onClick={() => handleDownload(result.csvData)}
-                            >
-                                <Download />
-                                Download CSV
-                            </button>
-                        </div>
-                    </div>
-                ))}
-                {/* Chat component */}
+                    );
+                })}
+
                 <div
-                    className={`w-full max-w-4xl ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} m-auto rounded-3xl ${answering ? " bottom-0 left-0 right-0 mb-3" : ""}`}
+                    className={`w-full max-w-4xl ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"}  rounded-3xl m-auto ${answering ? " bottom-0 mb-3" : ""}`}
                 >
                     {!answering && (
                         <h2 className="text-4xl font-semibold text-center mb-6">
@@ -209,7 +276,7 @@ const ChatPage = () => {
                     </div>
                 </div>
 
-            </div>
+            </main>
         </div >
     );
 };

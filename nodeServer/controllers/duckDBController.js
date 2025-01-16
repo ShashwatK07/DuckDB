@@ -93,3 +93,36 @@ export const generateSQL = async (req, res) => {
         res.status(500).json({ error: `Error: ${error.message}` });
     }
 }
+
+
+export const generateSuggestion = async (req, res) => {
+    try {
+        const { filePath } = req.body;
+
+        if (!filePath) {
+            return res.status(400).json({ error: "Missing required input." });
+        }
+
+        const response = await axios.get(filePath, { responseType: "arraybuffer" });
+        const fileContent = response.data.toString("utf8");
+
+        const csvData = parse(fileContent, { columns: true });
+
+        const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const prompt = `
+            You are an expert in data analysis and visualization. Based on the structure of this CSV file: ${JSON.stringify(csvData.slice(0, 5))},
+            suggest five diverse questions or queries that a user might ask to analyze or understand the data.Data given should be in points with no heading or description in bullet points(don't give bullet point symbol just text and column names in single quotes).
+        `;
+
+        const aiResponse = await model.generateContent(prompt);
+        const suggestions = aiResponse.response.text().split('\n').map(line => line.trim()).filter(line => line);
+
+        res.status(200).json({
+            analysisSuggestions: suggestions.slice(0, 5),
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: `Error: ${error.message}` });
+    }
+};

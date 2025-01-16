@@ -20,7 +20,7 @@ const Navbar = () => {
     };
 
     return (
-        <nav className={`fixed top-0 left-0 w-full  ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} py-3 flex justify-between items-center shadow-sm px-5`}>
+        <nav className={`top-0 left-0 w-full  ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} py-3 flex justify-between items-center shadow-sm px-5`}>
 
             <div
                 className="text-xl font-bold cursor-pointer mr-3"
@@ -33,7 +33,7 @@ const Navbar = () => {
                 <div className="relative">
                     <button
                         onClick={() => setDropdownVisible((prev) => !prev)}
-                        className="flex items-center gap-2 bg-[#F5EFFF] text-black py-2 px-4 rounded-full"
+                        className={`flex items-center gap-2 py-2 px-4 rounded-full`}
                     >
                         <img
                             src={user.imageUrl}
@@ -44,7 +44,7 @@ const Navbar = () => {
                     </button>
                     {dropdownVisible && (
                         <div
-                            className={`absolute right-0 mt-2 ${theme === "dark" ? "bg-[#181C14] text-white" : "bg-[#F5EFFF] text-black"} rounded-md py-2 w-36 text-sm shadow-lg`}
+                            className={`absolute right-0 mt-2 ${theme === "dark" ? "bg-[#3C3D37] text-white" : "bg-[#E5D9F2] text-black"} rounded-md py-2 w-36 text-sm shadow-lg`}
                             onMouseLeave={() => setDropdownVisible(false)}
                         >
                             <button
@@ -62,8 +62,9 @@ const Navbar = () => {
                         </div>
                     )}
                 </div>
-            )}
-        </nav>
+            )
+            }
+        </nav >
     );
 };
 
