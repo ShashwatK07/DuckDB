@@ -24,6 +24,7 @@ import { AuthGuard } from './auth.guard';
 const logger = new Logger('UploadController');
 
 @Controller('chat')
+@UseGuards(AuthGuard)
 export class DuckDBController {
   constructor(private duckdbService: DuckDBService) {}
 
@@ -40,7 +41,7 @@ export class DuckDBController {
     }
   }
 
-  @Post('upload/:userId')
+  @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -62,9 +63,8 @@ export class DuckDBController {
   )
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Req() req: Request,
+    @Req() req: any,
     @Res() res: Response,
-    @Param('userId') userId: string,
   ) {
     logger.log('Inside uploadFile');
     try {
@@ -75,6 +75,7 @@ export class DuckDBController {
           .status(HttpStatus.BAD_REQUEST)
           .json({ error: 'No file Uploaded' });
       }
+      const userId = req.user?.userId;
       const result = await this.duckdbService.processAndSaveFile(file, userId);
 
       return res.status(HttpStatus.OK).json(result);
@@ -85,12 +86,13 @@ export class DuckDBController {
     }
   }
 
-  @Post('/query/:userId')
+  @Post('/query')
   async generateAndExecuteQuery(
-    @Param('userId') userId: string,
     @Body() body: { text: string; tables: string[] },
+    @Req() req: any,
   ) {
     const { text, tables } = body;
+    const userId = req.user?.userId;
     if (!text) {
       throw new HttpException('Query text is required', HttpStatus.BAD_REQUEST);
     }

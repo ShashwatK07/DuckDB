@@ -31,7 +31,6 @@ export class DuckDBService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     try {
-      // Initialize DB connection when the application starts
       this.db = await this.databaseService.getDatabaseInstance();
       logger.log('Database connection established');
     } catch (error) {
