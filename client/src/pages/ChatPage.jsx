@@ -5,12 +5,15 @@ import {
     Paperclip,
     ArrowUp,
     Download,
+    AudioLines,
 } from "lucide-react";
 import Skeleton from "../components/Skeleton";
 import SpeechButton from "../components/SpeechButton";
 import Navbar from "../components/navbar";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 import useAuthStore from "../../store/authStore";
+import Vapi from "@vapi-ai/web";
+
 
 const ChatPage = () => {
     const [prompt, setPrompt] = useState("");
@@ -22,6 +25,8 @@ const ChatPage = () => {
     const [selectedChart, setSelectedChart] = useState("BarChart");
 
     const url = import.meta.env.VITE_SERVER_URL;
+    const vapi = new Vapi("0b954f96-76d4-490e-8878-460153e57a48");
+
 
     const uploadFile = async (file) => {
         if (!file) {
@@ -253,6 +258,7 @@ const ChatPage = () => {
                             onChange={(e) => setPrompt(e.target.value)}
                         />
                         <div className="flex items-center justify-between mt-4">
+
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <Paperclip />
                                 <input
@@ -264,6 +270,13 @@ const ChatPage = () => {
                             </label>
                             <div className="flex items-center gap-2">
                                 <SpeechButton handlePrompt={setPrompt} />
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <AudioLines />
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                    />
+                                </label>
                                 <button
                                     className={`flex items-center justify-center w-10 h-10 rounded-full ${isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"
                                         }`}
