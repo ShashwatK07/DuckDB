@@ -5,7 +5,6 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-  Param,
   Post,
   Req,
   Res,
@@ -20,6 +19,7 @@ import { DuckDBService } from './duckdb.service';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { AuthGuard } from './auth.guard';
+import { Webhook } from 'svix';
 
 const logger = new Logger('UploadController');
 
@@ -86,7 +86,7 @@ export class DuckDBController {
     }
   }
 
-  @Post('/query')
+  @Post('query')
   async generateAndExecuteQuery(
     @Body() body: { text: string; tables: string[] },
     @Req() req: any,
