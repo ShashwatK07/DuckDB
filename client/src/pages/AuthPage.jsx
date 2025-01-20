@@ -10,7 +10,7 @@ const AuthPage = () => {
 
     return (
         <div className="flex justify-center items-center h-screen">
-            {/* <DuckCanvas /> */}
+           
             <div className="flex flex-col items-center">
 
                 <div className="font-mono text-5xl mb-4">Welcome to SuperAI</div>

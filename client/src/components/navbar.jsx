@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
-import { useClerk } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { Sun, Moon, LogOut } from "lucide-react"
 
 const Navbar = () => {
@@ -9,14 +9,15 @@ const Navbar = () => {
     const navigate = useNavigate();
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
-    const { signOut } = useClerk();
+    const { signOut } = useAuth();
 
     const toggleTheme = () => {
         setTheme(theme === "dark" ? "light" : "dark");
     };
 
     const handleLogout = async () => {
-        await signOut({ redirect: true, redirectUrl: '/' });
+        await signOut();
+        navigate('/');
     };
 
     return (

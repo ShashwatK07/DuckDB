@@ -32,6 +32,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.1.1",
     "recharts": "^2.15.0",
+    "svix": "^1.45.1",
     "three": "^0.172.0",
     "zustand": "^4.5.4"
   },

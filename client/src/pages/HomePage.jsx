@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-// import { GoogleLogin } from "@react-oauth/google";
-import { useAuth0 } from "@auth0/auth0-react";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
+import { SignIn, SignedOut, SignedIn, UserButton, ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/clerk-react";
 import { useUser } from '@clerk/clerk-react';
 import useAuthStore from "../../store/authStore";
+import axios from 'axios'
 
 const textArray = [
     "I'm Super",
@@ -18,7 +17,6 @@ const HomePage = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const { login, loginAuth0 } = useAuthStore()
     const [showLogin, setShowLogin] = useState(false);
-    // const { loginWithRedirect, user } = useAuth0();
     const { user } = useUser();
 
     if (localStorage.getItem("user")) {
@@ -37,6 +35,30 @@ const HomePage = () => {
             }, 2000);
         }
     }, [currentIndex]);
+
+    const handleLogin = async () => {
+        try {
+            const res = await axios.post('http://localhost:3000/auth/login', {
+                email: user.primaryEmailAddress?.emailAddress,
+                password: user?.id
+            })
+            console.log(res.data)
+        } catch (err) {
+            console.log("Login not successfull")
+        }
+    }
+
+    const handleSignup = async () => {
+        try {
+            const userData = await user;
+            const res = await axios.post('http://localhost:3000/auth/signup', {
+                email: user.primaryEmailAddress?.emailAddress,
+                password: user?.id
+            })
+        } catch (Err) {
+            console.log("Login not successfull")
+        }
+    }
 
     return (
         <main className="min-h-screen w-full bg-customLight relative overflow-hidden flex flex-col items-center justify-center">
@@ -88,59 +110,38 @@ const HomePage = () => {
 
             <div className="mt-8 flex items-center justify-center min-h-[80px]">
                 <AnimatePresence>
-                    {showLogin && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            transition={{ duration: 0.5 }}
-                        >
-                            {/* <GoogleLogin
-                                onSuccess={(credentialResponse) => {
-                                    const token = credentialResponse.credential;
-                                    if (token) {
-                                        login(token);
-                                        navigate("/intro");
-                                    }
-                                }}
-                                onError={() => {
-                                    console.log("Login Failed");
-                                }}
-                            /> */}
 
-                            {/* <button onClick={async () => {
-                                await loginWithRedirect()
-                                await loginAuth0(user)
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <div className="flex items-center justify-center  bg-gray-50">
 
-                            }}>Log In</button> */}
-
-                            <div className="flex items-center justify-center  bg-gray-50">
+                            <ClerkLoaded>
                                 <SignedOut>
                                     <div
-                                        className="p-4 bg-white bg-clip-text text-transparent bg-gradient-to-r from-[#B85B8F] to-[#9B6BFF] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-                                        onClick={() => {
-                                            loginAuth0(user)
-                                        }}
+                                        className="p-4 bg-white bg-clip-text text-transparent bg-gradient-to-r from-[#B85B8F] to-[#9B6BFF] rounded-lg transition-shadow duration-200 cursor-pointer"
                                     >
-                                        <SignInButton />
+                                        <SignIn />
                                     </div>
                                 </SignedOut>
                                 <SignedIn>
                                     <div
                                         className="p-4 bg-white bg-clip-text font-semibold text-transparent bg-gradient-to-r from-[#B85B8F] to-[#9B6BFF] rounded-lg shadow-md transition-shadow duration-200 cursor-pointer"
                                         onClick={async () => {
-                                            loginAuth0(user);
                                             navigate('/intro');
                                         }}
                                     >
                                         <UserButton />
                                     </div>
                                 </SignedIn>
-                            </div>
+                            </ClerkLoaded>
 
+                        </div>
+                    </motion.div>
 
-                        </motion.div>
-                    )}
                 </AnimatePresence>
             </div>
         </main>
