@@ -23,6 +23,11 @@ export class UserService {
   }
 
   async create(userDto: UserDto): Promise<User> {
+    const existingUser = await this.userModel.findOne({ email: userDto.email });
+    if (existingUser) {
+      return existingUser;
+    }
+
     const newUser = new this.userModel(userDto);
     return newUser.save();
   }

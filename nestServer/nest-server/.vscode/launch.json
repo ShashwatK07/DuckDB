@@ -4,28 +4,37 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug NestJS Application",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:debug"],
-      "port": 9229,
+      "name": "Debug NestJS App",
+      "program": "${workspaceFolder}/node_modules/@nestjs/cli/bin/nest.js",
+      "args": ["start", "--watch"],
+      "autoAttachChildProcesses": true,
       "restart": true,
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}",
       "protocol": "inspector",
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "skipFiles": ["<node_internals>/"],
-      "sourceMaps": true
+      "outFiles": ["${workspaceFolder}/dist//*.js"]
     },
     {
       "type": "node",
       "request": "attach",
-      "name": "Attach to NestJS Application",
+      "name": "Attach to NestJS",
       "port": 9229,
-      "address": "localhost",
-      "restart": false,
+      "restart": true,
       "protocol": "inspector",
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": null,
-      "skipFiles": ["<node_internals>/"]
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}",
+      "outFiles": ["${workspaceFolder}/dist//*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run Current File",
+      "program": "${file}",
+      "skipFiles": ["<node_internals>/"],
+      "outFiles": ["${workspaceFolder}/dist//*.js"],
+      "runtimeArgs": ["--nolazy"],
+      "console": "integratedTerminal"
     }
   ]
 }

@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { Sun, Moon, LogOut } from "lucide-react"
 
 const Navbar = () => {
-    const { user, theme, setTheme } = useAuthStore();
+    const { theme, setTheme } = useAuthStore();
     const navigate = useNavigate();
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
-    const { signOut } = useAuth();
+    const { signOut, getToken } = useAuth();
+    const { user } = useUser();
 
     const toggleTheme = () => {
         setTheme(theme === "dark" ? "light" : "dark");

@@ -9,22 +9,25 @@ import {
   Req,
   Res,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { Request, Response } from 'express';
 import { diskStorage } from 'multer';
 import { DuckDBService } from './duckdb.service';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { AuthGuard } from './auth.guard';
 import { Webhook } from 'svix';
+import { requireAuth } from '@clerk/clerk-sdk-node';
+import { getAuth } from '@clerk/express';
 
 const logger = new Logger('UploadController');
 
 @Controller('chat')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class DuckDBController {
   constructor(private duckdbService: DuckDBService) {}
 
@@ -43,7 +46,7 @@ export class DuckDBController {
 
   @Post('upload')
   @UseInterceptors(
-    FileInterceptor('file', {
+    FilesInterceptor('files', 10, {
       storage: diskStorage({
         destination: './public/uploads',
         filename: (req, file, cb) => {
@@ -61,24 +64,29 @@ export class DuckDBController {
       },
     }),
   )
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Req() req: any,
+  async uploadFiles(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Req() req: Request,
     @Res() res: Response,
   ) {
-    logger.log('Inside uploadFile');
+    logger.log('Inside uploadFiles');
     try {
       await this.ensureUploadsDirectory();
 
-      if (!file) {
+      if (!files || files.length === 0) {
         return res
           .status(HttpStatus.BAD_REQUEST)
-          .json({ error: 'No file Uploaded' });
+          .json({ error: 'No files uploaded' });
       }
-      const userId = req.user?.userId;
-      const result = await this.duckdbService.processAndSaveFile(file, userId);
 
-      return res.status(HttpStatus.OK).json(result);
+      const { userId } = getAuth(req);
+      Logger.debug(userId);
+      const results = await this.duckdbService.processAndSaveFiles(
+        files,
+        userId,
+      );
+
+      return res.status(HttpStatus.OK).json(results);
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -88,21 +96,43 @@ export class DuckDBController {
 
   @Post('query')
   async generateAndExecuteQuery(
-    @Body() body: { text: string; tables: string[] },
-    @Req() req: any,
+    @Body() body: { text: string; tableNames: string[] },
+    @Req() req: Request,
   ) {
-    const { text, tables } = body;
-    const userId = req.user?.userId;
+    const { text, tableNames } = body;
     if (!text) {
       throw new HttpException('Query text is required', HttpStatus.BAD_REQUEST);
     }
 
+    Logger.debug('Text:', text);
+    Logger.debug('Table names:', tableNames);
+
     try {
       const result = await this.duckdbService.generateAndExecuteQuery(
-        userId,
         text,
-        tables,
+        tableNames,
       );
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to generate and execute the query',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('lama')
+  async generateQuery(
+    @Body() body: { text: string; tables: string[] },
+    @Req() req: Request,
+  ) {
+    const { text, tables } = body;
+    Logger.debug(text, tables);
+    if (!text) {
+      throw new HttpException('Query text is required', HttpStatus.BAD_REQUEST);
+    }
+    try {
+      const result = await this.duckdbService.generate(text, tables);
       return result;
     } catch (error) {
       throw new HttpException(

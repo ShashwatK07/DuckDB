@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import fs from "fs/promises";
 import axios from "axios";
 import Papa from "papaparse";
+import { requireAuth } from '@clerk/clerk-sdk-node'
 
 dotenv.config();
 

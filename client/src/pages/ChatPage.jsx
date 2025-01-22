@@ -10,7 +10,7 @@ import {
 import Skeleton from "../components/Skeleton";
 import SpeechButton from "../components/SpeechButton";
 import Navbar from "../components/navbar";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import { BarChart, LineChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 import useAuthStore from "../../store/authStore";
 import Vapi from "@vapi-ai/web";
 
@@ -19,34 +19,42 @@ const ChatPage = () => {
     const [prompt, setPrompt] = useState("");
     const [results, setResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [csvFile, setCsvFile] = useState(null);
+    const [csvFile, setCsvFile] = useState([]);
     const [answering, setAnswering] = useState(false)
     const { theme } = useAuthStore()
     const [selectedChart, setSelectedChart] = useState("BarChart");
 
     const url = import.meta.env.VITE_SERVER_URL;
-    const vapi = new Vapi("0b954f96-76d4-490e-8878-460153e57a48");
+    // const vapi = new Vapi("0b954f96-76d4-490e-8878-460153e57a48");
 
-
-    const uploadFile = async (file) => {
-        if (!file) {
-            alert("No file provided.");
+    const uploadFiles = async (files) => {
+        if (!files || files.length === 0) {
+            alert("No files provided.");
             return;
         }
 
         const formData = new FormData();
-        formData.append("file", file);
+        Array.from(files).forEach(file => {
+            formData.append("files", file);
+        });
 
         try {
-            const res = await axios.post(`${url}/api/chat/upload`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            setCsvFile(res.data.filePath);
-            alert("File uploaded successfully!");
+            const res = await axios.post(
+                `${url}/chat/upload`,
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                    withCredentials: true,
+                }
+            );
+            console.log(res.data);
+            setCsvFile(res.data)
+            alert("Files uploaded successfully!");
         } catch (error) {
-            console.error("Error uploading file:", error);
+            console.log('Error:', error.response?.data || error.message);
         }
     };
+
 
     const generateSQL = async () => {
         if (!prompt || !csvFile) {
@@ -56,13 +64,20 @@ const ChatPage = () => {
 
         try {
             setIsLoading(true);
-            setAnswering(true)
+
+            console.log(prompt, csvFile)
 
             const res = await axios.post(
-                `${url}/api/chat/generate`,
-                { text: prompt, filePath: csvFile },
-                { responseType: "blob" }
+                `${url}/chat/query`,
+
+                { text: prompt, tableNames: csvFile },
+                {
+                    responseType: "blob",
+                    withCredentials: true,
+                }
             );
+
+            console.log(res.data)
 
             const reader = new FileReader();
             reader.onload = () => {
@@ -264,19 +279,13 @@ const ChatPage = () => {
                                 <input
                                     type="file"
                                     className="hidden"
-                                    onChange={(e) => uploadFile(e.target.files[0])}
+                                    onChange={(e) => uploadFiles(e.target.files)}
                                     accept=".csv,.txt"
+                                    multiple
                                 />
                             </label>
                             <div className="flex items-center gap-2">
                                 <SpeechButton handlePrompt={setPrompt} />
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <AudioLines />
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                    />
-                                </label>
                                 <button
                                     className={`flex items-center justify-center w-10 h-10 rounded-full ${isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-800"
                                         }`}

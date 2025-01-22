@@ -12,19 +12,26 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDto, UpdateUserDto } from '../duckDB/dtos';
 import { Webhook } from 'svix';
 import { Request, Response } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { WebhookEvent } from '@clerk/clerk-sdk-node';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Get()
-  async findAll() {
-    return this.userService.findAll();
+  getProfile(@Req() req: Request) {
+    const user = req.body;
+    return user;
   }
 
   @Get(':id')
@@ -57,68 +64,53 @@ export class UserController {
       );
     }
 
-    const webhook = new Webhook(SIGNING_SECRET);
-
-    const payload = JSON.stringify(req.body);
-    Logger.debug(headers['svix-id']);
-    Logger.debug(payload);
-
-    const svixId = headers['svix-id'] as string;
-    const svixTimestamp = headers['svix-timestamp'] as string;
-    const svixSignature = headers['svix-signature'] as string;
+    const svixId = headers['svix-id'] || '';
+    const svixTimestamp = headers['svix-timestamp'] || '';
+    const svixSignature = headers['svix-signature'] || '';
 
     if (!svixId || !svixTimestamp || !svixSignature) {
-      throw new HttpException(
-        'Error: Missing Svix headers',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Missing required Svix headers');
     }
 
-    let event: any;
+    const body = req.body;
+    const bodyString = JSON.stringify(body);
 
+    // Logger.debug(SIGNING_SECRET, bodyString);
+
+    const wh = new Webhook(SIGNING_SECRET);
+
+    let event: WebhookEvent;
     try {
-      event = webhook.verify(payload, {
+      event = wh.verify(bodyString, {
         'svix-id': svixId,
         'svix-timestamp': svixTimestamp,
         'svix-signature': svixSignature,
-      });
-    } catch (err) {
-      console.error('Error verifying webhook:', err.message);
-      throw new HttpException(
-        `Webhook verification failed: ${err.message}`,
-        HttpStatus.BAD_REQUEST,
-      );
+      }) as WebhookEvent;
+
+      Logger.debug(event);
+    } catch (error) {
+      console.error('Webhook verification failed:', error.message);
+      throw new BadRequestException('Invalid webhook signature');
     }
 
     const { type, data } = event;
     Logger.log(`Received webhook of type: ${type}`);
     Logger.log('Webhook payload:', data);
 
+    let userPayload;
+    let accessToken;
+
     if (type === 'user.created') {
       const { id, email_addresses, first_name, last_name } = data;
 
-      await this.userService.create({
+      userPayload = await this.userService.create({
         clerkId: id,
         email: email_addresses[0]?.email_address,
         firstName: first_name,
         lastName: last_name,
       });
-    } else if (type === 'user.updated') {
-      const { id, first_name, last_name } = data;
-
-      await this.userService.update(id, {
-        firstName: first_name,
-        lastName: last_name,
-      });
-    } else if (type === 'user.deleted') {
-      const { id } = data;
-
-      await this.userService.remove(id);
     }
 
-    return res.status(200).json({
-      success: true,
-      message: 'Webhook processed successfully',
-    });
+    res.status(200).send({ success: true });
   }
 }

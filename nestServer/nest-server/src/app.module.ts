@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -7,6 +7,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { jwtModule } from './module.config';
 import { AuthModule } from './auth/auth.module';
+import { ClerkMiddleware } from './middleware/clerk.middleware';
+import { DuckDBController } from './duckDB/duckdb.controller';
+import { requireAuth } from '@clerk/express';
 
 @Module({
   imports: [
@@ -23,4 +26,10 @@ import { AuthModule } from './auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(requireAuth({ signInUrl: 'http://localhost:5173' }))
+      .forRoutes(DuckDBController);
+  }
+}

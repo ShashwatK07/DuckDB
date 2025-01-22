@@ -19,9 +19,9 @@ const HomePage = () => {
     const [showLogin, setShowLogin] = useState(false);
     const { user } = useUser();
 
-    if (localStorage.getItem("user")) {
-        return <navigate to="/" />;
-    }
+    // if (localStorage.getItem("user")) {
+    //     return <navigate to="/" />;
+    // }
 
     useEffect(() => {
         if (currentIndex < textArray.length - 1) {
@@ -38,8 +38,8 @@ const HomePage = () => {
 
     const handleLogin = async () => {
         try {
-            const res = await axios.post('http://localhost:3000/auth/login', {
-                email: user.primaryEmailAddress?.emailAddress,
+            const res = await axios.get('http://localhost:3000/auth/login', {
+                email: user?.primaryEmailAddress?.emailAddress,
                 password: user?.id
             })
             console.log(res.data)
@@ -48,17 +48,26 @@ const HomePage = () => {
         }
     }
 
-    const handleSignup = async () => {
-        try {
-            const userData = await user;
-            const res = await axios.post('http://localhost:3000/auth/signup', {
-                email: user.primaryEmailAddress?.emailAddress,
-                password: user?.id
-            })
-        } catch (Err) {
-            console.log("Login not successfull")
-        }
-    }
+    useEffect(() => {
+
+        const handleSignup = async () => {
+            try {
+                const email = user?.primaryEmailAddress?.emailAddress;
+                const id = user?.id;
+
+                const res = await axios.get(
+                    `http://localhost:3000/auth/signup?email=${encodeURIComponent(email)}&id=${encodeURIComponent(id)}`
+                );
+
+                console.log("Signup successful", res.data);
+            } catch (err) {
+                console.error("Signup not successful", err);
+            }
+        };
+
+        handleSignup()
+
+    }, [user])
 
     return (
         <main className="min-h-screen w-full bg-customLight relative overflow-hidden flex flex-col items-center justify-center">
